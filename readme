@@ -1,0 +1,64 @@
+# Asistente de Orientación — Colegios
+
+Asistente virtual para consultar información de colegios visitados, conectado a Google Sheets.
+
+## Archivos del proyecto
+
+```
+asistente-colegios/
+├── app.py              # Backend Flask (servidor)
+├── requirements.txt    # Dependencias Python
+├── Procfile            # Comando de inicio para Render
+└── static/
+    └── index.html      # Interfaz web del chat
+```
+
+---
+
+## Cómo hacer deploy en Render.com (GRATIS)
+
+### Paso 1 — Subir código a GitHub
+1. Crear cuenta en https://github.com (si no tienes)
+2. Crear repositorio nuevo: "asistente-colegios"
+3. Subir estos 4 archivos al repositorio
+
+### Paso 2 — Crear cuenta en Render
+1. Ir a https://render.com
+2. Registrarse con tu cuenta de GitHub
+
+### Paso 3 — Crear el servicio web
+1. Click en "New +" → "Web Service"
+2. Conectar tu repositorio "asistente-colegios"
+3. Configurar:
+   - Name: asistente-colegios
+   - Runtime: Python 3
+   - Build Command: pip install -r requirements.txt
+   - Start Command: gunicorn app:app
+   - Instance Type: Free
+
+### Paso 4 — Agregar la API Key de Claude
+1. En Render, ir a tu servicio → "Environment"
+2. Click "Add Environment Variable"
+3. Key: ANTHROPIC_API_KEY
+4. Value: tu API key de Anthropic (https://console.anthropic.com)
+
+### Paso 5 — Deploy
+1. Click "Create Web Service"
+2. Esperar ~2 minutos
+3. Tu URL será: https://asistente-colegios.onrender.com
+
+---
+
+## Cómo obtener tu API Key de Claude (gratis)
+1. Ir a https://console.anthropic.com
+2. Registrarse (gratis)
+3. Ir a "API Keys" → "Create Key"
+4. Copiar y guardar en Render como ANTHROPIC_API_KEY
+
+---
+
+## Cómo agregar más colegios
+Solo agrega filas en tu Google Sheet. El sistema lee los datos en tiempo real, no necesitas tocar código.
+
+## Cómo agregar columnas nuevas
+Agrega la columna en la Sheet con el nombre que quieras. El asistente la leerá automáticamente.
