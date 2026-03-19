@@ -77,7 +77,7 @@ BASE DE DATOS ACTUAL:
 
     genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.0-flash",
         system_instruction=system_prompt
     )
     response = model.generate_content(pregunta)
