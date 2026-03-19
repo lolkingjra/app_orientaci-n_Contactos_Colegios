@@ -115,8 +115,8 @@ def procesar(texto, colegios):
             lista = "\n".join(f"  {i+1}. {c.get('nombre_institucion','?')}  ({c.get('provincia','?')})" for i,c in enumerate(filtrados))
             return f"Colegios {tipo_label} ({len(filtrados)}):\n\n{lista}"
 
-    # ---------- telefono ----------
-    pide_tel = any(p in t for p in ['telefono','numero','tel ','numero de telefono','celular'])
+    # ---------- detectar intencion ----------
+    pide_tel = any(p in t for p in ['telefono','telefonos','numero','numero de telefono','celular'])
     pide_correo_orient = any(p in t for p in ['correo del orientador','email del orientador','correo orientador'])
     pide_correo_dir = any(p in t for p in ['correo del director','email del director','correo director'])
     pide_correo = any(p in t for p in ['correo','email','mail']) and not pide_correo_orient and not pide_correo_dir
@@ -124,20 +124,36 @@ def procesar(texto, colegios):
     pide_orientador = any(p in t for p in ['orientador','orientadora','encargado de orientacion'])
     pide_horario = any(p in t for p in ['horario','hora','atienden','abierto'])
 
-    # extraer nombre del colegio eliminando palabras clave
-    palabras_clave = ['telefono','numero','correo','email','mail','director','directora',
-                      'orientador','orientadora','horario','hora','datos','informacion',
-                      'del','de la','de los','quien es el','quien es la','cual es el',
-                      'cual es la','dame','quiero','necesito','busca','buscar','ver',
-                      'colegio','liceo','instituto','escuela','centro','tecnico']
-    termino_limpio = t
-    for pk in palabras_clave:
-        termino_limpio = termino_limpio.replace(pk, ' ')
-    termino_limpio = ' '.join(termino_limpio.split()).strip()
+    # extraer nombre del colegio quitando prefijos de mayor a menor longitud
+    prefijos = [
+        'telefonos de','telefono de','numero de telefono de','numero de',
+        'correo del orientador de','correo del director de','correo de',
+        'email del orientador de','email del director de','email de',
+        'quien es el director de','quien es la directora de',
+        'quien es el orientador de','quien es la orientadora de',
+        'cual es el horario de','horario de',
+        'dame los datos de','dame la informacion de','datos de','informacion de',
+        'dame','quiero saber sobre','quiero info de',
+        'telefonos','telefono','correo','email','director','directora',
+        'orientador','orientadora','horario','datos','informacion',
+        'quien es el','quien es la','cual es el','cual es la',
+        'quiero','necesito','buscar','ver','del','de la','de los','de',
+    ]
+    prefijos.sort(key=len, reverse=True)
 
+    termino_limpio = t
+    for p in prefijos:
+        if termino_limpio.startswith(p + ' '):
+            termino_limpio = termino_limpio[len(p):].strip()
+            break
+        elif termino_limpio == p:
+            termino_limpio = ''
+            break
+
+    termino_limpio = ' '.join(termino_limpio.split()).strip()
     resultados = buscar_colegios(colegios, termino_limpio) if len(termino_limpio) > 2 else []
 
-    # si no encontro con limpio, busca con texto original
+    # fallback con texto original completo
     if not resultados and len(t) > 3:
         resultados = buscar_colegios(colegios, texto)
 
