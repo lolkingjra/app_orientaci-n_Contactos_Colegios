@@ -1,318 +1,205 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asistente de Orientación</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Asistente de Orientación</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;
+  --surface:#181c26;
+  --card:#1e2333;
+  --border:#2a3048;
+  --accent:#4f7cff;
+  --accent2:#6c8fff;
+  --green:#2ecf8e;
+  --text:#e8eaf0;
+  --muted:#7b82a0;
+  --user-bg:linear-gradient(135deg,#4f7cff,#7c5cff);
+  --bot-bg:#1e2333;
+  --chip-bg:#252c42;
+  --chip-border:#333d5a;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.layout{width:100%;max-width:780px;height:100dvh;display:flex;flex-direction:column;position:relative}
 
-    :root {
-      --bg: #f4f1ec;
-      --surface: #fffdf9;
-      --border: #ddd8cc;
-      --text: #1a1814;
-      --muted: #7a7568;
-      --accent: #2d5a3d;
-      --accent-light: #e8f0eb;
-      --user-bg: #2d5a3d;
-      --user-text: #fff;
-      --bot-bg: #ffffff;
-      --shadow: 0 2px 12px rgba(0,0,0,0.07);
-    }
+/* Header */
+header{padding:18px 28px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.logo{width:40px;height:40px;background:linear-gradient(135deg,#4f7cff,#7c5cff);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo svg{width:20px;height:20px;fill:white}
+.header-text h1{font-family:'Instrument Serif',serif;font-size:1.25rem;font-weight:400;color:var(--text);line-height:1}
+.header-text p{font-size:.72rem;color:var(--muted);margin-top:3px}
+.status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--green)}
+.status::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+/* Chat area */
+#chat{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+#chat::-webkit-scrollbar{width:4px}
+#chat::-webkit-scrollbar-track{background:transparent}
+#chat::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
-    .container {
-      width: 100%;
-      max-width: 720px;
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-    }
+/* Messages */
+.msg{display:flex;flex-direction:column;max-width:82%;animation:fadeUp .22s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.bot{align-self:flex-start;align-items:flex-start}
+.sender{font-size:.65rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.bubble{padding:13px 16px;border-radius:16px;font-size:.875rem;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.msg.user .bubble{background:var(--user-bg);color:#fff;border-bottom-right-radius:4px;box-shadow:0 2px 16px rgba(79,124,255,.3)}
+.msg.bot .bubble{background:var(--bot-bg);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
 
-    header {
-      padding: 20px 28px 18px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
+/* Typing */
+.typing-dots{display:flex;gap:5px;padding:4px 2px;align-items:center}
+.typing-dots span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:blink 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{transform:scale(1);opacity:.5}40%{transform:scale(1.25);opacity:1}}
 
-    header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.4rem;
-      color: var(--accent);
-      font-weight: 400;
-    }
+/* Chips area */
+.chips-section{padding:0 28px 10px;flex-shrink:0}
+.chips-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:var(--chip-bg);border:1px solid var(--chip-border);color:var(--text);border-radius:20px;padding:6px 13px;font-size:.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.chip:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip .icon{font-size:.8rem}
 
-    header p {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 2px;
-      font-weight: 300;
-    }
+/* Input */
+#input-area{padding:14px 28px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;background:var(--surface);flex-shrink:0}
+#input{flex:1;border:1px solid var(--border);border-radius:24px;padding:12px 18px;font-size:.875rem;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--text);outline:none;transition:border-color .15s}
+#input:focus{border-color:var(--accent)}
+#input::placeholder{color:var(--muted)}
+#send{background:linear-gradient(135deg,#4f7cff,#7c5cff);color:#fff;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s;box-shadow:0 2px 12px rgba(79,124,255,.4)}
+#send:hover{opacity:.88}
+#send:disabled{opacity:.35;cursor:not-allowed}
+#send svg{width:17px;height:17px;fill:#fff}
 
-    .badge {
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-top: 6px;
-      font-weight: 500;
-    }
-
-    #chat {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
-    }
-
-    .msg {
-      display: flex;
-      flex-direction: column;
-      max-width: 88%;
-      animation: fadeUp 0.25s ease both;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .msg.user { align-self: flex-end; align-items: flex-end; }
-    .msg.bot  { align-self: flex-start; align-items: flex-start; }
-
-    .bubble {
-      padding: 12px 16px;
-      border-radius: 16px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      box-shadow: var(--shadow);
-    }
-
-    .msg.user .bubble {
-      background: var(--user-bg);
-      color: var(--user-text);
-      border-bottom-right-radius: 4px;
-    }
-
-    .msg.bot .bubble {
-      background: var(--bot-bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 4px;
-    }
-
-    .label {
-      font-size: 0.68rem;
-      color: var(--muted);
-      margin-bottom: 4px;
-      font-weight: 500;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-
-    .typing {
-      display: flex;
-      gap: 5px;
-      padding: 14px 18px;
-      align-items: center;
-    }
-
-    .typing span {
-      width: 7px; height: 7px;
-      background: var(--muted);
-      border-radius: 50%;
-      animation: bounce 1.2s infinite;
-    }
-    .typing span:nth-child(2) { animation-delay: 0.2s; }
-    .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); }
-      40%           { transform: translateY(-6px); }
-    }
-
-    .sugerencias {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 0 28px 12px;
-    }
-
-    .sug-btn {
-      background: var(--accent-light);
-      color: var(--accent);
-      border: 1px solid #c2d8c9;
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: background 0.15s;
-    }
-    .sug-btn:hover { background: #d2e8d9; }
-
-    #input-area {
-      padding: 16px 28px 20px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: 10px;
-      background: var(--surface);
-    }
-
-    #input {
-      flex: 1;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 11px 18px;
-      font-size: 0.9rem;
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    #input:focus { border-color: var(--accent); }
-    #input::placeholder { color: var(--muted); }
-
-    #send {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: opacity 0.15s;
-    }
-    #send:hover { opacity: 0.85; }
-    #send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    #send svg { width: 18px; height: 18px; fill: #fff; }
-  </style>
+/* Empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px;opacity:.45;pointer-events:none;user-select:none}
+.empty svg{width:48px;height:48px;fill:var(--muted)}
+.empty p{font-size:.85rem;color:var(--muted)}
+</style>
 </head>
 <body>
-<div class="container">
+<div class="layout">
   <header>
-    <h1>Asistente de Orientación</h1>
-    <p>Consulta información de colegios visitados</p>
-    <span class="badge">● En línea</span>
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5zM2 16l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>Asistente de Orientación</h1>
+      <p>Consulta de colegios visitados</p>
+    </div>
+    <div class="status">En línea</div>
   </header>
 
   <div id="chat">
-    <div class="msg bot">
-      <span class="label">Asistente</span>
-      <div class="bubble">¡Hola! Soy tu asistente de orientación. 👋
-
-Puedes preguntarme sobre cualquier colegio registrado. Por ejemplo:
-• "Dame los datos del Colegio Lincoln"
-• "¿Cuál es el correo del orientador del Liceo Nacional?"
-• "Lista todos los colegios"
-• "¿Cuál es el horario del Colegio Técnico?"
-
-¿En qué te puedo ayudar?</div>
+    <div class="empty" id="empty-state">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <p>Escribe una consulta para comenzar</p>
     </div>
   </div>
 
-  <div class="sugerencias">
-    <button class="sug-btn" onclick="enviarSugerencia('Lista todos los colegios registrados')">📋 Ver todos los colegios</button>
-    <button class="sug-btn" onclick="enviarSugerencia('¿Cuántos colegios hay registrados?')">🔢 ¿Cuántos colegios hay?</button>
+  <div class="chips-section">
+    <div class="chips-label">Consultas frecuentes</div>
+    <div class="chips">
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">📋</span>Lista todos los colegios</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">📞</span>Teléfonos de [colegio]</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">✉️</span>Correo del orientador de [colegio]</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">👤</span>Quién es el director de [colegio]</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">🕐</span>Horario de [colegio]</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">🏛️</span>Colegios públicos</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">🔧</span>Colegios técnicos</button>
+      <button class="chip" onclick="enviarChip(this)"><span class="icon">❓</span>Ayuda</button>
+    </div>
   </div>
 
   <div id="input-area">
-    <input id="input" type="text" placeholder="Escribe tu consulta aquí..." autocomplete="off"/>
+    <input id="input" type="text" placeholder="Escribe el nombre de un colegio o una consulta…" autocomplete="off"/>
     <button id="send" onclick="enviar()">
-      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
     </button>
   </div>
 </div>
 
 <script>
-  const chat = document.getElementById('chat');
-  const input = document.getElementById('input');
-  const sendBtn = document.getElementById('send');
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const emptyState = document.getElementById('empty-state');
 
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') enviar(); });
+input.addEventListener('keydown', e => { if(e.key==='Enter') enviar(); });
 
-  function enviarSugerencia(texto) {
-    input.value = texto;
+function enviarChip(btn) {
+  const txt = btn.textContent.trim().replace(/^[^\w\s]+\s*/,'');
+  if(txt.includes('[colegio]')) {
+    input.value = txt.replace('[colegio]', '');
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  } else {
+    input.value = txt;
     enviar();
   }
+}
 
-  function agregarMensaje(rol, texto) {
-    const div = document.createElement('div');
-    div.className = `msg ${rol}`;
-    const label = rol === 'user' ? 'Tú' : 'Asistente';
-    div.innerHTML = `<span class="label">${label}</span><div class="bubble">${texto}</div>`;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    return div;
+function quitarEmpty() {
+  if(emptyState) emptyState.remove();
+}
+
+function agregar(rol, texto) {
+  quitarEmpty();
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${rol}`;
+  const sender = rol === 'user' ? 'Tú' : 'Asistente';
+  wrap.innerHTML = `<div class="sender">${sender}</div><div class="bubble">${escapar(texto)}</div>`;
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escapar(txt) {
+  return txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function mostrarTyping() {
+  quitarEmpty();
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.id = 'typing';
+  d.innerHTML = '<div class="sender">Asistente</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function quitarTyping() {
+  const t = document.getElementById('typing');
+  if(t) t.remove();
+}
+
+async function enviar() {
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  agregar('user', msg);
+  mostrarTyping();
+  try {
+    const res = await fetch('/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({mensaje: msg})
+    });
+    const data = await res.json();
+    quitarTyping();
+    agregar('bot', data.respuesta || 'Sin respuesta.');
+  } catch(e) {
+    quitarTyping();
+    agregar('bot', 'Error de conexion. Por favor intenta de nuevo.');
   }
-
-  function mostrarTyping() {
-    const div = document.createElement('div');
-    div.className = 'msg bot';
-    div.id = 'typing';
-    div.innerHTML = `<span class="label">Asistente</span><div class="bubble typing"><span></span><span></span><span></span></div>`;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  function quitarTyping() {
-    const t = document.getElementById('typing');
-    if (t) t.remove();
-  }
-
-  async function enviar() {
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    input.value = '';
-    sendBtn.disabled = true;
-    agregarMensaje('user', msg);
-    mostrarTyping();
-
-    try {
-      const res = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje: msg })
-      });
-      const data = await res.json();
-      quitarTyping();
-      agregarMensaje('bot', data.respuesta || 'No obtuve respuesta.');
-    } catch (err) {
-      quitarTyping();
-      agregarMensaje('bot', 'Hubo un error conectando con el servidor. Intenta de nuevo.');
-    }
-
-    sendBtn.disabled = false;
-    input.focus();
-  }
+  sendBtn.disabled = false;
+  input.focus();
+}
 </script>
 </body>
 </html>
