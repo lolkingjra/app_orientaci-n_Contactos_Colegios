@@ -2,9 +2,9 @@ import os
 import csv
 import io
 import urllib.request
+import google.generativeai as genai
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import anthropic
 
 app = Flask(__name__, static_folder="static")
 CORS(app)
@@ -75,16 +75,13 @@ BASE DE DATOS ACTUAL:
 {datos_texto}
 """
 
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-    
-    message = client.messages.create(
-        model="claude-opus-4-5",
-        max_tokens=1024,
-        system=system_prompt,
-        messages=[{"role": "user", "content": pregunta}]
+    genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        system_instruction=system_prompt
     )
-
-    respuesta = message.content[0].text
+    response = model.generate_content(pregunta)
+    respuesta = response.text
     return jsonify({"respuesta": respuesta})
 
 @app.route("/colegios", methods=["GET"])
